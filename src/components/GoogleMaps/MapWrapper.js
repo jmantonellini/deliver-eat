@@ -3,7 +3,7 @@ import Map from "./Map";
 import Marker from "./Marker";
 import { Wrapper } from "@googlemaps/react-wrapper";
 import Environment from "../../constants/Environment";
-
+import House from "../../assets/house-icon.png";
 const render = (status) => {
   return <h1>{status}</h1>;
 };
@@ -45,6 +45,7 @@ const MapWrapper = ({ geolocation, onMapClick = () => {} }) => {
           zoom={zoom}
           style={{ flexGrow: "1", height: "100%" }}
         >
+          <Marker position={geolocation} icon={House} />
           <Marker position={click.latLng} />
         </Map>
       </Wrapper>

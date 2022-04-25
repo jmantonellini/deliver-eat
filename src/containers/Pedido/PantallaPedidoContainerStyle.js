@@ -6,6 +6,6 @@ export default {
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.background,
-    height: "100vh",
+    minHeight: "100vh",
   },
 };

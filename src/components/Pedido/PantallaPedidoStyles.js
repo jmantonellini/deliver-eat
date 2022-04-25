@@ -4,8 +4,8 @@ export default {
   inputContainer: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
     gap: "1rem",
+    flexWrap: "wrap",
   },
   container: {
     backgroundColor: colors.primary,
@@ -16,11 +16,14 @@ export default {
     justifyContent: "center",
     padding: "20px",
     borderRadius: "10px",
+    maxWidth: "600px",
   },
   directionContainer: {
+    margin: "1rem 0",
     display: "flex",
     justifyContent: "center",
     flexWrap: "wrap",
     width: "100%",
+    gap: "1rem",
   },
 };

@@ -8,9 +8,10 @@ import {
 } from "@mui/material";
 import React from "react";
 import { INPUT_TYPES } from "../../constants/TypeKeys";
-import Styles from "./InputStyles.js";
+import Styles from "./CustomInputStyles.js";
+import InputMask from "react-input-mask";
 
-const Input = ({ input }) => {
+const CustomInput = ({ input }) => {
   const {
     type,
     textType = "text",
@@ -21,6 +22,9 @@ const Input = ({ input }) => {
     multiline = false,
     handleChange = () => {},
     menuItems = [],
+    mask = "",
+    maskChar = "",
+    props = {},
   } = input;
   switch (type) {
     case INPUT_TYPES.SELECT:
@@ -74,16 +78,38 @@ const Input = ({ input }) => {
                 type={textType}
                 onChange={(event) => handleChange(key, event.target.value)}
                 size="small"
-                inputProps={{ max: 100 }}
+                InputProps={props}
               ></TextField>
             )}
           </FormControl>
         </Tooltip>
       );
-
+    case INPUT_TYPES.MASKED_TEXT:
+      return (
+        <InputMask
+          mask={mask}
+          value={value}
+          disabled={false}
+          maskChar={maskChar}
+          onChange={(e) => handleChange(key, e.target.value)}
+        >
+          {() => (
+            <TextField
+              id={key}
+              label={label}
+              required
+              variant="filled"
+              value={value}
+              style={Styles.input}
+              size="small"
+              inputProps={{ max: 100 }}
+            />
+          )}
+        </InputMask>
+      );
     default:
       break;
   }
 };
 
-export default Input;
+export default CustomInput;

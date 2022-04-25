@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import MapWrapper from "../GoogleMaps/MapWrapper";
 import Dropzone from "../Dropzone/Dropzone";
 import Styles from "./PantallaPedidoStyles";
-import Input from "../Input/Input";
+import CustomInput from "../Input/CustomInput";
 import { INPUT_TYPES } from "../../constants/TypeKeys";
 import { ciudadesAcotado } from "../../constants/Ciudades";
-import { Paper, Typography } from "@mui/material";
+import { Button, InputAdornment, Paper, Typography } from "@mui/material";
 import { distanceInMeters } from "../../utils/GoogleMapsAPI";
 import DialogContainer from "../Dialog/DialogContainer";
 import { billingTypes } from "../../constants/Billing";
@@ -15,7 +15,6 @@ const PantallaPedido = () => {
   const [addressData, setAddressData] = useState({ city: "CORDOBA" });
   const [productData, setProductData] = useState({});
   const [billingData, setBillingData] = useState({ billingType: "efectivo" });
-  const [fields, setFields] = useState({});
   const [currentLocation, setCurrentLocation] = useState({ lat: 0, lng: 0 });
   const [tripDistance, setTripDistance] = useState(0);
   const [openedDialog, setOpenedDialog] = useState(false);
@@ -47,6 +46,15 @@ const PantallaPedido = () => {
 
   const addressInputs = [
     {
+      type: INPUT_TYPES.SELECT,
+      tooltip: "Ciudades de Córdoba",
+      value: addressData?.city,
+      key: "city",
+      label: "Ciudad",
+      handleChange: handleChangeAddress,
+      menuItems: ciudadesAcotado,
+    },
+    {
       type: INPUT_TYPES.TEXT,
       tooltip: "Nombre de la calle",
       value: addressData?.street,
@@ -64,13 +72,12 @@ const PantallaPedido = () => {
       handleChange: handleChangeAddress,
     },
     {
-      type: INPUT_TYPES.SELECT,
-      tooltip: "Ciudades de Córdoba",
-      value: addressData?.city,
-      key: "city",
-      label: "Ciudad",
+      type: INPUT_TYPES.TEXT,
+      tooltip: "Referencia para ubicar al cadete.",
+      value: addressData?.reference,
+      key: "reference",
+      label: "Referencia",
       handleChange: handleChangeAddress,
-      menuItems: ciudadesAcotado,
     },
   ];
 
@@ -112,6 +119,61 @@ const PantallaPedido = () => {
       value: billingData?.payment,
       key: "payment",
       label: "Monto",
+      props: {
+        max: 100,
+        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+      },
+      handleChange: handleChangeBilling,
+    },
+  ];
+
+  const billingCardInputs = [
+    {
+      type: INPUT_TYPES.TEXT,
+      tooltip: "Nombre y apellido como aparecen en la tarjeta",
+      value: billingData?.cardName,
+      key: "cardName",
+      label: "Nombre y apellido",
+      handleChange: handleChangeBilling,
+    },
+    {
+      type: INPUT_TYPES.MASKED_TEXT,
+      tooltip: "Número de la tarjeta",
+      value: billingData?.cardNumber,
+      key: "cardNumber",
+      label: "Número",
+      mask: "9999 9999 9999 9999",
+      maskChar: "X",
+      handleChange: handleChangeBilling,
+    },
+    {
+      type: INPUT_TYPES.MASKED_TEXT,
+      tooltip: "Mes de vencimiento de la tarjeta",
+      value: billingData?.cardMonth,
+      key: "cardMonth",
+      label: "Mes",
+      mask: "99",
+      maskChar: "M",
+      handleChange: handleChangeBilling,
+    },
+    {
+      type: INPUT_TYPES.MASKED_TEXT,
+      tooltip: "Año de vencimiento de la tarjeta",
+      value: billingData?.cardYear,
+      key: "cardYear",
+      label: "Año",
+      mask: "9999",
+      maskChar: "A",
+      handleChange: handleChangeBilling,
+    },
+    {
+      type: INPUT_TYPES.MASKED_TEXT,
+      tooltip: "Clave de la tarjeta",
+      value: billingData?.key,
+      key: "key",
+      label: "CVC",
+      mask: "999",
+      maskChar: "X",
       handleChange: handleChangeBilling,
     },
   ];
@@ -126,14 +188,9 @@ const PantallaPedido = () => {
     setTripDistance(Math.trunc(distance));
   };
 
-  const handleFieldChange = (key, value) => {
-    const newFields = { ...fields };
-    newFields[key] = value;
-    setFields(newFields);
-  };
-
   const handleDropzoneUpload = (id, file, hasError) => {
-    handleFieldChange(id, file);
+    handleChangeProduct("image", file);
+    setIsError(false);
   };
 
   const handleDropzoneRejected = (id, errors, error) => {
@@ -147,7 +204,7 @@ const PantallaPedido = () => {
   };
 
   const handleDropzoneDelete = (id, hasError) => {
-    handleFieldChange(id, null);
+    handleChangeProduct("image", null);
     handleDropzoneError(hasError);
   };
 
@@ -172,16 +229,20 @@ const PantallaPedido = () => {
     setOpenedDialog(false);
   };
 
+  const handleSubmit = () => {};
+
   return (
     <div>
       <Paper style={Styles.container}>
+        <Typography variant="h5">Pedir lo que sea</Typography>
         <div style={Styles.directionContainer}>
           <div style={Styles.inputContainer}>
             {addressInputs.map((input, i) => (
-              <Input key={i} input={input} />
+              <CustomInput key={i} input={input} />
             ))}
-            <Typography>{tripDistance}mts</Typography>
-            <Typography>{(tripDistance * 0.0001).toFixed(2)}kms</Typography>
+            <Typography>
+              Distancia: {(tripDistance * 0.001).toFixed(2)}kms
+            </Typography>
           </div>
           <MapWrapper
             geolocation={currentLocation}
@@ -190,7 +251,7 @@ const PantallaPedido = () => {
         </div>
         <div style={Styles.directionContainer}>
           {productInputs.map((input, i) => (
-            <Input key={i} input={input} />
+            <CustomInput key={i} input={input} />
           ))}
           <Dropzone
             label="Imagen"
@@ -204,9 +265,16 @@ const PantallaPedido = () => {
         </div>
         <div style={Styles.directionContainer}>
           {billingInputs.map((input, i) => (
-            <Input key={i} input={input} />
+            <CustomInput key={i} input={input} />
           ))}
         </div>
+        <div style={Styles.directionContainer}>
+          {billingData?.billingType !== "efectivo" &&
+            billingCardInputs.map((input, i) => (
+              <CustomInput key={i} input={input} />
+            ))}
+        </div>
+        <Button onClick={handleSubmit}>Pedir</Button>
       </Paper>
       <div>
         <DialogContainer

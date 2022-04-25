@@ -21,7 +21,6 @@ const DialogContainer = ({
   handleCloseDialog = () => {},
   dialog,
 }) => {
-  console.log("DIALOG", dialog);
   const { title, text, isError } = dialog;
 
   return (
