@@ -4,61 +4,7 @@ import { useDropzone } from "react-dropzone";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Loading from "../Loading";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles(() => ({
-  dropzone: {
-    cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "4px",
-    border: `2px dashed gray`,
-    width: "100%",
-    height: "auto",
-    "&:hover": {
-      border: `2px dashed black`,
-      "& .MuiSvgIcon-root": {
-        color: "green",
-      },
-    },
-    "&:focus": {
-      outline: "none !important",
-    },
-  },
-  dropzoneError: {
-    border: `2px dashed red`,
-  },
-  labelError: {
-    color: "red",
-  },
-  curtain: {
-    height: "100%",
-    width: "100%",
-    background: "#FFFFFF99",
-    borderRadius: "8px",
-  },
-  imageContainer: {
-    height: "100%",
-    width: "100%",
-  },
-  image: {
-    padding: "1rem",
-    maxWidth: "100%",
-    height: "auto",
-    objectFit: "contain",
-  },
-  icon: {
-    height: "3rem",
-    width: "3rem",
-    marginBottom: "0.5rem",
-  },
-  label: {
-    padding: "0 0.5rem",
-    textAlign: "center",
-  },
-}));
+import Styles from "./DropzoneStyles";
 
 const LoadingState = () => (
   <Box padding="3rem 2rem">
@@ -67,13 +13,7 @@ const LoadingState = () => (
   </Box>
 );
 
-const BaseState = ({
-  isDragActive,
-  children = () => {},
-  label,
-  error,
-  classes,
-}) => {
+const BaseState = ({ isDragActive, children = () => {}, label, error }) => {
   return (
     <Box
       paddingTop="0.5rem"
@@ -81,8 +21,8 @@ const BaseState = ({
       flexDirection="column"
       alignItems="center"
     >
-      <AddCircleIcon className={classes.icon} />
-      <Typography className={classes.label}>
+      <AddCircleIcon style={Styles.icon} />
+      <Typography style={Styles.label}>
         {error ? "Foto requerida" : label}
       </Typography>
       {children(isDragActive)}
@@ -90,14 +30,7 @@ const BaseState = ({
   );
 };
 
-const PreviewState = ({
-  urlImg = "",
-  file,
-  label,
-  classes,
-  onDelete,
-  block,
-}) => {
+const PreviewState = ({ urlImg = "", file, label, onDelete, block }) => {
   const url = file !== null ? URL.createObjectURL(file) : urlImg;
   const handleDelete = (ev) => {
     ev.preventDefault();
@@ -105,22 +38,20 @@ const PreviewState = ({
     onDelete();
   };
   return (
-    <Box display="flex" position="relative" className={classes.imageContainer}>
-      <Box display="flex" className={classes.imageContainer}>
-        {url && <img className={classes.image} alt={label} src={`${url}`} />}
-        {!block && (
-          <Box
-            onClick={handleDelete}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            className={classes.curtain}
-            position="absolute"
-          >
-            <DeleteIcon />
-          </Box>
-        )}
-      </Box>
+    <Box display="flex" position="relative" style={Styles.imageContainer}>
+      {url && <img style={Styles.image} alt={label} src={`${url}`} />}
+      {!block && (
+        <Box
+          onClick={handleDelete}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={Styles.curtain}
+          position="absolute"
+        >
+          <DeleteIcon />
+        </Box>
+      )}
     </Box>
   );
 };
@@ -130,12 +61,10 @@ const Dropzone = ({
   children,
   onDelete,
   error,
-  className,
   block = false,
   previewFile = null,
   ...dropzoneProps
 }) => {
-  const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [urlImg, setUrlImg] = useState(previewFile);
@@ -173,9 +102,9 @@ const Dropzone = ({
       display="flex"
       flexDirection="column"
       alignItems="center"
-      className={classes.imageContainer}
+      style={Styles.container}
     >
-      <Box className={classes.dropzone} {...getRootProps()}>
+      <Box style={Styles.dropzone} {...getRootProps()}>
         {!block && <input {...getInputProps()} />}
         {loading ? (
           <LoadingState />
@@ -185,14 +114,12 @@ const Dropzone = ({
             children={children}
             label={label}
             error={error}
-            classes={classes}
           />
         ) : (
           <PreviewState
             file={file}
             urlImg={urlImg}
             label={label}
-            classes={classes}
             block={block}
             onDelete={() => {
               setFile(null);

@@ -1,6 +1,6 @@
 export default {
   input: {
-    width: "150px",
+    width: "250px",
     height: "auto",
   },
 };

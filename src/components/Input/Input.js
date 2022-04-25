@@ -7,23 +7,25 @@ import {
   Tooltip,
 } from "@mui/material";
 import React from "react";
-import { INPUT_TYPES } from "../../constants";
+import { INPUT_TYPES } from "../../constants/TypeKeys";
 import Styles from "./InputStyles.js";
 
 const Input = ({ input }) => {
   const {
     type,
+    textType = "text",
     tooltip,
     label,
     value,
     key,
+    multiline = false,
     handleChange = () => {},
     menuItems = [],
   } = input;
   switch (type) {
     case INPUT_TYPES.SELECT:
       return (
-        <Tooltip title={tooltip} placement="top" arrow>
+        <Tooltip key={key} title={tooltip} placement="top" arrow>
           <FormControl style={Styles.input}>
             <InputLabel>{label}</InputLabel>
             <Select
@@ -31,9 +33,12 @@ const Input = ({ input }) => {
               onChange={(event) => handleChange(key, event.target.value)}
               label={label}
               size="small"
+              variant="filled"
             >
-              {menuItems.map((menuItem) => (
-                <MenuItem value={menuItem.value}>{menuItem.label}</MenuItem>
+              {menuItems.map((menuItem, i) => (
+                <MenuItem key={i} value={menuItem.value}>
+                  {menuItem.label}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -41,20 +46,37 @@ const Input = ({ input }) => {
       );
     case INPUT_TYPES.TEXT:
       return (
-        <Tooltip title={tooltip} placement="top" arrow>
+        <Tooltip key={key} title={tooltip} placement="top" arrow>
           <FormControl style={Styles.input}>
-            <TextField
-              id={key}
-              label={label}
-              required
-              variant="outlined"
-              value={value}
-              style={Styles.input}
-              type="number"
-              onChange={(event) => handleChange(key, event.target.value)}
-              size="small"
-              inputProps={{ max: 100 }}
-            ></TextField>
+            {multiline ? (
+              <TextField
+                id={key}
+                label={label}
+                required
+                multiline
+                rows={4}
+                variant="filled"
+                value={value}
+                style={Styles.input}
+                type={textType}
+                onChange={(event) => handleChange(key, event.target.value)}
+                size="small"
+                inputProps={{ max: 100 }}
+              ></TextField>
+            ) : (
+              <TextField
+                id={key}
+                label={label}
+                required
+                variant="filled"
+                value={value}
+                style={Styles.input}
+                type={textType}
+                onChange={(event) => handleChange(key, event.target.value)}
+                size="small"
+                inputProps={{ max: 100 }}
+              ></TextField>
+            )}
           </FormControl>
         </Tooltip>
       );
