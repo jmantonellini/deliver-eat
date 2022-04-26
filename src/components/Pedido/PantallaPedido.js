@@ -23,6 +23,7 @@ import { billingTypes } from "../../constants/Billing";
 import { calculatePrice } from "../../utils/Billing";
 import { DateTimePicker, DesktopDateTimePicker } from "@mui/x-date-pickers";
 import { parseISO } from "date-fns";
+import { validationProps } from "../../utils/Utils";
 
 const PantallaPedido = () => {
   const [isError, setIsError] = useState(false);
@@ -39,24 +40,104 @@ const PantallaPedido = () => {
   const [openedDialog, setOpenedDialog] = useState(false);
   const [dialog, setDialog] = useState({});
 
+  const currentDate = new Date();
+  let maxDeliveryDate = new Date();
+  maxDeliveryDate.setDate(maxDeliveryDate.getDate() + 7);
+
   const success = (param) => {
-    console.log("SUCCESS", param.coords);
     setCurrentLocation({
       lat: param.coords.latitude,
       lng: param.coords.longitude,
     });
   };
-  const error = (param) => {
-    console.log("ERROR", param);
-  };
+  const error = (param) => {};
 
-  const options = (param) => {
-    console.log(param);
-  };
+  const options = (param) => {};
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(success, error, options);
   }, []);
+
+  const showError = (title, text) => {
+    console.log(title);
+    console.log(text);
+    setDialog({
+      title: title,
+      text: text,
+      isError: true,
+    });
+    setIsError(true);
+    setOpenedDialog(true);
+  };
+
+  const validatePrices = () => {
+    if (billingData?.payment < productData?.price + deliveryPrice) {
+      setDialog({
+        title: "Error en el pago",
+        text: "El monto a pagar debe ser mayor a la suma del costo del envío y del producto.",
+        isError: true,
+      });
+      setIsError(true);
+      setOpenedDialog(true);
+      return false;
+    } else if (
+      billingData?.billingType !== "efectivo" &&
+      billingData?.cardNumber?.charAt(0) !== "4"
+    ) {
+      setDialog({
+        title: "Error en el pago",
+        text: "La tarjeta debe ser Visa.",
+        isError: true,
+      });
+      setIsError(true);
+      setOpenedDialog(true);
+      return false;
+    } else return true;
+  };
+
+  const validateEmptyFields = () => {
+    let title = "Falta ingresar información";
+    let text = "Por favor complete los datos necesarios en el campo ";
+    if (deliveryPrice === 0) {
+      text = "Por favor seleccione un punto el mapa";
+      showError(title, text);
+      return false;
+    } else if (!productData?.price || productData?.price == ("" || 0)) {
+      console.log("ERROR");
+      showError(title, text + "Precio de producto");
+      return false;
+    } else if (!productData?.description || productData?.description === "") {
+      showError(title, text + "Descripción de producto");
+      return false;
+    } else if (!billingData?.payment || billingData?.payment === ("" || 0)) {
+      showError(title, text + "Monto a pagar");
+      return false;
+    } else if (
+      !billingData?.billingType ||
+      billingData?.billingType !== "efectivo"
+    ) {
+      if (!billingData?.cardNumber || billingData?.cardNumber === ("" || 0)) {
+        showError(title, text + "Número de tarjeta");
+        return false;
+      }
+      if (!billingData?.cardName || billingData?.cardName === "") {
+        showError(title, text + "Nombre y Apellido de tarjeta");
+        return false;
+      }
+      if (!billingData?.cardMonth || billingData?.cardMonth === "") {
+        showError(title, text + "Mes de tarjeta");
+        return false;
+      }
+      if (!billingData?.cardYear || billingData?.cardYear === "") {
+        showError(title, text + "Año de tarjeta");
+        return false;
+      }
+      if (!billingData?.cardKey || billingData?.cardKey === "") {
+        showError(title, text + "Clave de la tarjeta");
+        return false;
+      }
+    } else return true;
+  };
 
   const handleChangeDelivery = (key, value) => {
     const newVariables = { ...deliveryData, [key]: value };
@@ -155,9 +236,23 @@ const PantallaPedido = () => {
   const productInputs = [
     {
       type: INPUT_TYPES.TEXT,
-      tooltip: "Descripción del producto",
+      tooltip: "Precio del producto",
+      value: productData?.price,
+      key: "price",
+      label: "Precio",
+      required: true,
+      props: {
+        max: 100,
+        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+      },
+      handleChange: handleChangeProduct,
+    },
+    {
+      type: INPUT_TYPES.TEXT,
+      tooltip: "Descripción del producto (hasta 50 caracteres)",
       value: productData?.description,
       multiline: true,
+      required: true,
       key: "description",
       label: "Descripción",
       handleChange: handleChangeProduct,
@@ -243,8 +338,8 @@ const PantallaPedido = () => {
     {
       type: INPUT_TYPES.MASKED_TEXT,
       tooltip: "Clave de la tarjeta",
-      value: billingData?.key,
-      key: "key",
+      value: billingData?.cardKey,
+      key: "cardKey",
       label: "CVC",
       mask: "999",
       maskChar: "X",
@@ -252,11 +347,6 @@ const PantallaPedido = () => {
       handleChange: handleChangeBilling,
     },
   ];
-
-  const validationProps = {
-    accept: ["image/jpeg"],
-    maxSize: 5000000,
-  };
 
   const handleMapClick = (latLng) => {
     const distance = distanceInMeters(latLng, currentLocation);
@@ -305,10 +395,17 @@ const PantallaPedido = () => {
     setOpenedDialog(false);
   };
 
-  const handleSubmit = () => {};
-
-  const date = new Date().toLocaleString();
-  console.log(date);
+  const handleSubmit = () => {
+    if (validatePrices() || validateEmptyFields()) {
+      setDialog({
+        title: "Pedido exitoso!",
+        text: "Tu pedido ah sido generado con éxito. Te notificaremos cuando el cadete lo confirme.",
+        isError: false,
+      });
+      setIsError(false);
+      setOpenedDialog(true);
+    }
+  };
 
   return (
     <div>
@@ -332,7 +429,6 @@ const PantallaPedido = () => {
           </div>
           <div style={Styles.inputContainer}>
             <FormLabel style={{ textAlign: "center" }}>Hasta</FormLabel>
-
             {addressToInputs.map((input, i) => (
               <CustomInput key={i} input={input} />
             ))}
@@ -342,7 +438,7 @@ const PantallaPedido = () => {
           <Typography>
             Distancia: {(tripDistance * 0.001).toFixed(2)}kms
           </Typography>
-          <Typography>Precio de entrega: ${deliveryPrice}</Typography>
+          <Typography>{`Precio de entrega: $${deliveryPrice}`}</Typography>
         </div>
         <div style={Styles.sectionContainer}>
           <Dropzone
@@ -354,9 +450,11 @@ const PantallaPedido = () => {
             }
             onDelete={() => handleDropzoneDelete("productImage1", isError)}
           />
-          {productInputs.map((input, i) => (
-            <CustomInput key={i} input={input} />
-          ))}
+          <div style={Styles.column}>
+            {productInputs.map((input, i) => (
+              <CustomInput key={i} input={input} />
+            ))}
+          </div>
         </div>
         <div style={Styles.sectionContainer}>
           {billingInputs.map((input, i) => (
@@ -372,7 +470,7 @@ const PantallaPedido = () => {
         )}
         <div style={Styles.sectionContainer}>
           <FormControl>
-            <FormLabel>Forma de entrega</FormLabel>
+            <FormLabel>"Forma de entrega"</FormLabel>
             <RadioGroup
               aria-labelledby="demo-controlled-radio-buttons-group"
               name="controlled-radio-buttons-group"
@@ -392,16 +490,17 @@ const PantallaPedido = () => {
                 label="Fecha específica"
               />
             </RadioGroup>
-            {deliveryData?.deliveryType === "custom" && (
-              <DateTimePicker
-                label="Fecha y hora"
-                value={deliveryData?.dateAndTime}
-                minDate={parseISO(Date())}
-                onChange={(e) => handleChangeDelivery("dateAndTime", e)}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            )}
           </FormControl>
+          {deliveryData?.deliveryType === "custom" && (
+            <DateTimePicker
+              label="Fecha y hora"
+              value={deliveryData?.dateAndTime}
+              minDate={currentDate}
+              maxDate={maxDeliveryDate}
+              onChange={(e) => handleChangeDelivery("dateAndTime", e)}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          )}
         </div>
         <Button variant="contained" color="primary" onClick={handleSubmit}>
           Pedir

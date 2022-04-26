@@ -4,5 +4,6 @@ export default {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    maxWidth: "350px",
   },
 };

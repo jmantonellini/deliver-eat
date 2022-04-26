@@ -28,6 +28,7 @@ const CustomInput = ({ input }) => {
     required = false,
     error = false,
     helperText = "",
+    maxChar,
   } = input;
   switch (type) {
     case INPUT_TYPES.SELECT:
@@ -61,14 +62,14 @@ const CustomInput = ({ input }) => {
                 label={label}
                 required={required}
                 multiline
-                rows={6}
+                rows={4}
                 variant="filled"
                 value={value}
                 style={Styles.input}
                 type={textType}
                 onChange={(event) => handleChange(key, event.target.value)}
                 size="small"
-                inputProps={{ max: 100 }}
+                inputProps={{ maxLength: 50 }}
                 error={error}
                 helperText={helperText}
               ></TextField>

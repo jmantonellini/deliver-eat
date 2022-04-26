@@ -20,9 +20,18 @@ export default {
   sectionContainer: {
     margin: "1rem 0",
     display: "flex",
+    alignItems: "center",
     justifyContent: "center",
     flexWrap: "wrap",
     width: "100%",
+    gap: "1rem",
+  },
+  column: {
+    margin: "1rem 0",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    flexWrap: "wrap",
     gap: "1rem",
   },
 };
