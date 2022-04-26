@@ -1,4 +1,4 @@
-export const imageContainerSize = "250px";
+export const imageContainerSize = "200px";
 
 export const colors = {
   background: "#233329",

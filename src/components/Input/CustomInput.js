@@ -25,6 +25,9 @@ const CustomInput = ({ input }) => {
     mask = "",
     maskChar = "",
     props = {},
+    required = false,
+    error = false,
+    helperText = "",
   } = input;
   switch (type) {
     case INPUT_TYPES.SELECT:
@@ -56,9 +59,9 @@ const CustomInput = ({ input }) => {
               <TextField
                 id={key}
                 label={label}
-                required
+                required={required}
                 multiline
-                rows={4}
+                rows={6}
                 variant="filled"
                 value={value}
                 style={Styles.input}
@@ -66,12 +69,14 @@ const CustomInput = ({ input }) => {
                 onChange={(event) => handleChange(key, event.target.value)}
                 size="small"
                 inputProps={{ max: 100 }}
+                error={error}
+                helperText={helperText}
               ></TextField>
             ) : (
               <TextField
                 id={key}
                 label={label}
-                required
+                required={required}
                 variant="filled"
                 value={value}
                 style={Styles.input}
@@ -79,6 +84,8 @@ const CustomInput = ({ input }) => {
                 onChange={(event) => handleChange(key, event.target.value)}
                 size="small"
                 InputProps={props}
+                error={error}
+                helperText={helperText}
               ></TextField>
             )}
           </FormControl>
@@ -97,12 +104,14 @@ const CustomInput = ({ input }) => {
             <TextField
               id={key}
               label={label}
-              required
+              required={required}
               variant="filled"
               value={value}
               style={Styles.input}
               size="small"
               inputProps={{ max: 100 }}
+              error={error}
+              helperText={helperText}
             />
           )}
         </InputMask>

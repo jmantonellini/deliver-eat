@@ -8,7 +8,6 @@ export default {
     flexWrap: "wrap",
   },
   container: {
-    backgroundColor: colors.primary,
     display: "flex",
     flexDirection: "column",
     flexWrap: "wrap",
@@ -16,9 +15,9 @@ export default {
     justifyContent: "center",
     padding: "20px",
     borderRadius: "10px",
-    maxWidth: "600px",
+    maxWidth: "800px",
   },
-  directionContainer: {
+  sectionContainer: {
     margin: "1rem 0",
     display: "flex",
     justifyContent: "center",

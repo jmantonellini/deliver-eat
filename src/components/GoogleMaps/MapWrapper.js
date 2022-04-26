@@ -36,7 +36,7 @@ const MapWrapper = ({ geolocation, onMapClick = () => {} }) => {
   };
 
   return (
-    <div style={{ height: "300px", width: "300px" }}>
+    <div style={{ height: "250px", width: "250px" }}>
       <Wrapper apiKey={Environment.REACT_APP_GOOGLE_API_KEY} render={render}>
         <Map
           center={center}
